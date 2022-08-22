@@ -1,0 +1,23 @@
+token: ""
+path: []
+minerName: ""
+apiKey: chiapp00-5a6f-4555-acce-0355548e9139
+cachePath: ""
+deviceId: ""
+extraParams: {}
+log:
+  lv: info
+  path: ./log/
+  name: miner.log
+url:
+  info: ""
+  submit: ""
+  line: ""
+  ws: ""
+  proxy: ""
+scanPath: true
+scanMinute: 2
+debug: ""
+language: en
+line: jp
+multithreadingLoad: true
