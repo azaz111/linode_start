@@ -17,44 +17,62 @@ def ipp():
 
 service=service_avtoriz()
 
-paps_int=int(input('Сколько папок в работу ? : '))
-
-paps_perens=drivr_s_folder_all(service)
-print('Вижу папок : ', len(paps_perens ))
-sp_folders_name=[iii for iii in paps_perens if iii['name'] != 'PLOT']
-dup = [x for i, x in enumerate(sp_folders_name) if i != sp_folders_name.index(x)]
-for x in dup:
-    sp_folders_name.remove(x) 
-#print('Из них дубликатов  : ',len(dup))
-#for q in sp_folders_name:
-#   for i range()
-
-   #s_iddrive = q['parents'][0]
-   #q_name=q['name']
-   #os.mkdir(q_name)
+vibor=int(input ('Как запустить ? \n  По указанному количеству дисков - 1\n  По текущим папкам с плотами - 2 \n  Свои папки (через пробел) -3 \n: '))
 
 
+def vibor_m():
+    list_miner=[]
+    paps_int=int(input('Сколько папок майним + в конфиг ? : '))
 
+    if vibor==2:
+       #paps_perens=drivr_s_folder_all(service)
+       paps_perens=[{'name':'1-2.d'},{'name':'2-1.d'},{'name':'3-3.d'},{'name':'4-4.d'}]
 
+       sp_folders_name=[iii for iii in paps_perens if iii['name'] != 'PLOT']
+       dup = [x for i, x in enumerate(sp_folders_name) if i != sp_folders_name.index(x)]
+       for x in dup:
+           sp_folders_name.remove(x) 
+       splits = np.array_split(sp_folders_name, len(sp_folders_name)/paps_int)
+       for array in splits:
+           list_miner.append([x['name'][:-4] for x in list(array)])
+       return(list_miner)
 
-#splits = np.array_split(sp_folders_name, len(sp_folders_name)/paps_int)
-#for array in splits:
-#    #print(list(array))
-#    list_miner=[x['name'][:-4] for x in list(array)]
-#    name_miner='_'.join(list_miner)
-#    print(name_miner)
-#    # документ YAML
-#    yml = "config_ish.yaml"
-#    with open(yml) as f:
-#        data = yaml.load(f, Loader=SafeLoader)
-#        print(data)
-#    data['minerName']=ipp()+'_Miner_'+name_miner
-#    data['path']=['/osnova'+x['name'][:-4]+'/'+x['name'] for x in list(array)]
-#    
-#    with open('config.yaml', 'w') as fw:
-#        data = yaml.dump(data, fw, sort_keys=False, 
-#                         default_flow_style=False)
-#    input('------')
-import subprocess
-file_ = open("ouput.txt", "w")
-subprocess.Popen("./miner", stdout=file_)
+    if vibor==1:
+        
+        inss=int(input('Количество дисков : '))
+        name_miner=list(range(1,inss+1))
+        splits = np.array_split(name_miner, len(name_miner)/paps_int)
+        for array in splits:
+            list_miner.append([str(x) for x in list(array)])
+        return(list_miner)
+
+for q in vibor_m():
+   q_name=ipp()+'_Miner_'+'_'.join(q)
+   os.mkdir(q_name)
+   shutil.copyfile('miner',q_name+'/miner')
+   os.system('chmod 777 '+q_name+'/miner')
+   # документ YAML
+   yml = "config_ish.yaml"
+   with open(yml) as f:
+       data = yaml.load(f, Loader=SafeLoader)
+       print(data)
+   data['log']['path']=q_name+'/log/'
+   data['minerName']=q_name
+   data['path']=['/osnova'+x+'/'+x+'-1.d' for x in q]
+
+   print(data['path'])
+   with open(q_name+'/config.yaml', 'w') as fw:
+       data = yaml.dump(data, fw, sort_keys=False, 
+                        default_flow_style=False)
+   input('------')
+   
+   file_ = open(q_name+"/ouput.txt", "w")
+   com='./miner'
+   
+   print(com.split(' '))
+   os.chdir(q_name)
+   process=subprocess.Popen(com, stdout=file_)
+   os.chdir('..')
+   with open(q_name+'/pid.log','w') as f :
+     f.write(str(process.pid))
+   
