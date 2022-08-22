@@ -11,6 +11,19 @@ shutil.copyfile('/root/AutoRclone/token.json','token.json')
 #    input('нехватает фалов ......')
 from BIB_API import drive_ls , service_avtoriz , drivr_s_folder_all
 
+
+kakoi=int(input('Какой майнер ставим Господин !!! \n PP - 1 \n OG - 2 \n ~: '))
+
+if kakoi == 1:
+    type_miner='pp'
+    api='chiapp00-5a6f-4555-acce-0355548e9139'
+elif kakoi == 2:
+    type_miner='og'
+    api='950554c1-2786-4caa-9c8b-dc8461019dd5'
+else:
+    input('НЕТ ТАКОГО ВАРИАНТА')
+
+
 def ipp():
     new_ip=requests.get('http://httpbin.org/ip').json()['origin']
     return new_ip.split('.')[3]
@@ -18,6 +31,7 @@ def ipp():
 service=service_avtoriz()
 
 vibor=int(input ('Как запустить ? \n  По указанному количеству дисков - 1\n  По текущим папкам с плотами - 2 \n  Свои папки (через пробел) -3 \n: '))
+
 
 def vibor_m():
     list_miner=[]
@@ -48,7 +62,7 @@ def vibor_m():
 for q in vibor_m():
    q_name=ipp()+'_Miner_'+'_'.join(q)
    os.mkdir(q_name)
-   shutil.copyfile('miner',q_name+'/miner')
+   shutil.copyfile('miner'+type_miner,q_name+'/miner')
    os.system('chmod 777 '+q_name+'/miner')
    # документ YAML
    yml = "config_ish.yaml"
@@ -57,6 +71,7 @@ for q in vibor_m():
        print(data)
    data['log']['path']=q_name+'/log/'
    data['minerName']=q_name
+   data['apiKey']=api
    data['path']=['/osnova'+x+'/'+x+'-1.d' for x in q]
 
    print(data['path'])
