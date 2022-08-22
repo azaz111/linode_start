@@ -19,7 +19,6 @@ service=service_avtoriz()
 
 vibor=int(input ('Как запустить ? \n  По указанному количеству дисков - 1\n  По текущим папкам с плотами - 2 \n  Свои папки (через пробел) -3 \n: '))
 
-
 def vibor_m():
     list_miner=[]
     paps_int=int(input('Сколько папок майним + в конфиг ? : '))
@@ -64,7 +63,6 @@ for q in vibor_m():
    with open(q_name+'/config.yaml', 'w') as fw:
        data = yaml.dump(data, fw, sort_keys=False, 
                         default_flow_style=False)
-   input('------')
    
    file_ = open(q_name+"/ouput.txt", "w")
    com='./miner'
