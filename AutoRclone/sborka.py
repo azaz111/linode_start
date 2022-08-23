@@ -1,3 +1,4 @@
+from time import sleep
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -7,54 +8,68 @@ import io
 from googleapiclient.errors import HttpError
 from sys import argv
 import subprocess
-from BIB_API import service_avtoriz , perenos_fails_list , spisok_fails_q ,new_drive , \
-           spisok_fails_roditelya,createRemoteFolder,peremesti_v_odnu , drive_ls ,_is_success
-successful = []
+from BIB_API import service_avtoriz ,  drive_ls , folder_all
+import threading
 
-service = service_avtoriz()
-service2 = service_avtoriz('v2')
+def sborka(ttt,previous_parents,id_papsbor):
+    service_sborka = service_avtoriz()
+    try:
+        file = service_sborka.files().update(fileId=ttt,
+                                      addParents=id_papsbor,
+                                      supportsAllDrives=True, 
+                                      removeParents=previous_parents, fields='id, parents').execute()
+        return
+    except:
+        print('на повтор')
+        sleep(20)
+        sborka(ttt,previous_parents,id_papsbor)
+
+
 chto_sobirat=int(input('Какие папки собираем : "1"- 1.d  , "2" - copy :  '))
 
-#if len(drive_ls(service)) == 21 :
-#   s_iddrive=drive_ls(service)[0]['id']
-#   mud_name=drive_ls(service)[0]['name']
-#else:
-#   print( 'НЕ пойму какого хрена вижу не стандартное количество дисков ') 
-#   exit()
 
-for q in drive_ls(service):
-    if len(spisok_fails_q(service,q['id'],"mimeType = 'application/vnd.google-apps.folder' and name contains 'PLOT'"))>= 1: 
-       id_papsbor=spisok_fails_q(service,q['id'],"mimeType = 'application/vnd.google-apps.folder' and name contains 'PLOT'")[0]['id']
-sp_paps=[]
-print(id_papsbor)
-for q in drive_ls(service):
-    if chto_sobirat == 1:
-        try:
-            id_p=spisok_fails_q(service,q['id'],"mimeType = 'application/vnd.google-apps.folder' and name contains '.d'")[0]['id']
-            sp_paps.append(id_p)
-        except:
-            pass
-    elif chto_sobirat == 2:
-        try:
-            id_p=spisok_fails_q(service,q['id'],"mimeType = 'application/vnd.google-apps.folder' and name contains '-copy'")[0]['id']
-            sp_paps.append(id_p)
-        except:
-            pass    
-    else:
-        input ( 'НЕВЕРНОЕ ЗНАЧЕНИЕ ')    
+service = service_avtoriz()
+paps_perens=folder_all(service)
+sp_folders=[iii for iii in paps_perens if iii['name'] != 'PLOT']
+plot_folders=[[iii['parents'][0],iii['id']] for iii in paps_perens if iii['name'] == 'PLOT'][0]
+if plot_folders:
+    print('Найшли Plot ', plot_folders[1])
+    print('Найшли Plot на диске ', plot_folders[0])
+    #print('id Plot', folder_all(service,plot_folders)[0]['parents'][0])
+    pass
+else:
+    input('Ненайдена папка PLOT')
+
+if chto_sobirat == 1:
+    print('ВЫбор 1')
+    #print(sp_folders)
+    sp_folders=[iii for iii in sp_folders if iii['name'].endswith('1.d')]
+    sp_folders=[iii for iii in sp_folders if iii['parents'][0]!= plot_folders[1]]
+    print('Папок сборки : ',len(sp_folders))
+
+elif chto_sobirat == 2 :
+    print('ВЫбор 2')
+    #print(sp_folders)
+    sp_folders=[iii for iii in sp_folders if iii['name'].endswith('copy.d')]
+    sp_folders=[iii for iii in sp_folders if iii['parents'][0]!= plot_folders[1]]
+    print('Папок сборки  copy : ',len(sp_folders))
+
+else:
+    print('Нет такого значения')
 
 
-print(' Папка СБОРКИ: ' + str(id_papsbor))
-print(' НУжных папок : ' + str(len(sp_paps)))
+
 
 print('Начинаю сборку')
 
-n=0
-for ttt in sp_paps:
-    print(ttt)
-    file = service.files().get(fileId=ttt, supportsAllDrives=True, fields='parents').execute()
-    previous_parents = ",".join(file.get('parents'))
-    file = service.files().update(fileId=ttt,
-                                  addParents=id_papsbor,
-                                  supportsAllDrives=True, 
-                                  removeParents=previous_parents, fields='id, parents').execute()
+for folders in sp_folders:
+    print('Папка  :'+ folders['id'] )
+    sleep(0.2)
+    thread = threading.Thread(target=sborka, args=(folders['id'],folders['parents'][0],plot_folders[1],))
+    thread.start()
+    #sborka(folders['id'],folders['parents'][0],plot_folders[1])
+
+
+
+
+
