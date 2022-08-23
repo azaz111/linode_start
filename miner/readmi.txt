@@ -1,1 +1,40 @@
-!
+echo "Start" > /root/rclone1.log && sudo apt-get update && sudo apt-get upgrade -y && sudo apt install git -y && sudo locale-gen en_US.UTF-8 ru_RU.UTF-8 && apt-get install -y python3 python3-pip && apt install unzip -y && sudo apt install -y libsodium-dev cmake g++ git && sudo apt install  -y && sudo apt-get install screen git && sudo apt install curl &&curl https://rclone.org/install.sh | sudo bash && sudo apt install -y build-essential cmake libgmp-dev libnuma-dev
+
+git clone https://github.com/azaz111/linode_start.git
+sudo mv linode_start/AutoRclone AutoRclone
+sudo mv linode_start/Drive_PYTHON Drive_PYTHON
+sudo mv linode_start/miner miner
+cd AutoRclone && pip install -r requirements.txt
+pip install numpy
+
+echo -e '#!/bin/bash \ncd /root/AutoRclone \nscreen -S badfix python3 badfix3.0.py ' > /usr/local/bin/nb
+chmod +x /usr/local/bin/nb
+
+echo -e '#!/bin/bash \n screen -r badfix' > /usr/local/bin/b
+chmod +x /usr/local/bin/b
+
+echo -e '#!/bin/bash \ncd /root/Drive_PYTHON \nscreen -S Drive python3 Drive.py ' > /usr/local/bin/nd
+chmod +x /usr/local/bin/nd
+
+echo -e '#!/bin/bash \n screen -r -d Drive' > /usr/local/bin/d
+chmod +x /usr/local/bin/d
+
+echo -e '#!/bin/bash \ncd /root/AutoRclone \n python3 ls.py ' > /usr/local/bin/pls
+chmod +x /usr/local/bin/pls
+
+echo -e '#!/bin/bash \ncd /root/AutoRclone \n python3 fold_ls.py ' > /usr/local/bin/plsf
+chmod +x /usr/local/bin/plsf
+
+echo -e '#!/bin/bash \ncd /root/miner \n python3  miner_start.py ' > /usr/local/bin/ms
+chmod +x /usr/local/bin/ms
+
+echo -e '#!/bin/bash \ncd /root/miner \n pkill miner \n rm -R *Miner* ' > /usr/local/bin/md
+chmod +x /usr/local/bin/md
+
+echo -e '#!/bin/bash \ncd /root/miner \n rm -R *Miner* ' > /usr/local/bin/mr
+chmod +x /usr/local/bin/mr
+
+ps aux | grep 4021
+
+rm badf*
+wget https://raw.githubusercontent.com/azaz111/linode_start/main/AutoRclone/badfix3.0.py
