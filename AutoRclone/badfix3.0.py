@@ -126,7 +126,7 @@ def cikl(iii,schet_err=0):
               sleep(4)
               os.system (f'fusermount -uz /{name_osnova}/{iii}-1.d')
               sleep(2)
-              os.system (f'screen -dmS "{name_osnova}" rclone mount {name_osnova}:{iii}-1.d /{name_osnova}/{iii}-1.d --vfs-cache-mode off --multi-thread-streams 30 --low-level-retries 2 --retries 2 --vfs-read-chunk-size 128K --drive-chunk-size 1M --buffer-size off --max-backlog 20000 --fast-list --no-traverse --no-modtime --read-only --log-level INFO --stats 1m --allow-non-empty --max-duration 0 --no-checksum --max-read-ahead=0K --vfs-read-chunk-size-limit off --timeout 0 --drive-keep-revision-forever --drive-stop-on-download-limit --drive-v2-download-min-size 256M --daemon')
+              os.system (f'screen -dmS "{name_osnova}" rclone mount {name_osnova}:{iii}-1.d /{name_osnova}/{iii}-1.d --allow-non-empty --daemon  --multi-thread-streams 1024 --multi-thread-cutoff 128M --network-mode  --vfs-read-chunk-size-limit off --buffer-size 0K --vfs-read-chunk-size 64K --vfs-read-wait 0ms -v')
               print( 'Пытаюсь повторно размонтировать')
               #print(pap_mount(name_osnova,iii))
               if pap_mount(name_osnova,iii) >= 1 :
