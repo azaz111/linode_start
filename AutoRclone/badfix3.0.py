@@ -50,8 +50,8 @@ def download_new_json(nomber_start):
 
 def chek_drive(poisk):# Проверка диска на удаление
     service = service_avtoriz_v3()
-    with open('Spisok_drive.txt', 'rb') as t:
-      id_disk_prov=t.readlines()[poisk-1][:-1].decode('utf-8')
+    with open('Spisok_drive.txt', 'r') as t:
+      id_disk_prov=t.read().split('\n')[poisk-1]
     print('Чекаем диск '+ id_disk_prov)
     drive_lsp = drive_ls(service)
     for qqq in drive_lsp :
@@ -141,7 +141,7 @@ def cikl(iii,schet_err=0):
    
       #print("\033[32m{}\033[0m".format(' ВЫПОЛНЕНО ! Монтирование ЗАВЕРШЕНо ! \n Смен проекта %s\n Текущий json в базе %s \n Время работы %s'% (sch_pereezdov,id_cred,str(datetime.now() - start_time)[:-7])))
       '''Запишем в базу успешный чек'''
-      write_baza_badfix(str(iii),str(id_drive),str(status),sum_plot)
+      write_baza_badfix(str(iii),str(id_drive),str(status),sum_plot,time())
       ''' ожидаем до следующего цикла '''
       sleep(300)
       '''Повторяем цикл'''
@@ -151,10 +151,10 @@ def cikl(iii,schet_err=0):
       with open('Badfix_error_log.txt' , 'a' ) as f:
          f.write(f'Potok № {iii} . ) Error : '+ str(e) + '\n')
 
-      if schet_err < 100: # Количество допустимых ошибок 
+      if schet_err < 200: # Количество допустимых ошибок 
          cikl(iii,schet_err+1)
       
-      write_baza_badfix(str(iii),str(id_drive),'False',sum_plot)
+      write_baza_badfix(str(iii),str(id_drive),'False',sum_plot,time())
 
 if __name__ == '__main__':
 
