@@ -55,8 +55,9 @@ if __name__ == '__main__':
         countdown('Время до старта : ', delay)
         os.rename(spisok_drive_vrem,spisok_drive_pach)
         with open(spisok_drive_pach, 'r') as t:
-            id_disk_prov=t.read().split('\n')
-        id_disk_prov=[iii for iii in id_disk_prov if iii != 'NONE']
+            id_disk_prov_txt=t.read().split('\n')
+        id_disk_prov=[iii for iii in id_disk_prov_txt if iii != 'NONE']
+        id_name=[x+1 for x,iii in enumerate(id_disk_prov_txt) if iii != 'NONE']
 
 
         print(id_disk_prov)
@@ -70,7 +71,7 @@ if __name__ == '__main__':
         print('Переезд На')
         print(new_ls_drive)
         for i in range(len(new_ls_drive)):
-            service.teamdrives().update(teamDriveId=new_ls_drive[i], body={"name": i+1}).execute()
+            service.teamdrives().update(teamDriveId=new_ls_drive[i], body={"name": id_name[i]}).execute()
             try:
                 perenos_files=spisok_fails_roditelya(id_disk_prov[i],id_disk_prov[i],service)
                 print(perenos_files)
