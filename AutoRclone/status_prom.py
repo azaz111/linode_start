@@ -1,12 +1,5 @@
 from time import sleep
 import pymysql
-from googleapiclient.discovery import build
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-import os
-from multiprocessing.pool import ThreadPool
-import concurrent.futures
 from BIB_API import drive_ls , service_avtoriz , drivr_s_folder_all
 from sshtunnel import SSHTunnelForwarder
 
@@ -20,7 +13,6 @@ if what_bazis:
 else:
     what_og=input('Номер сервера OG ?:' )
     name='og'+what_og
-
 
 server = SSHTunnelForwarder(
     ('149.248.8.216', 22),
@@ -41,10 +33,9 @@ def new_drive_control(folder,drive):
     mybd = getConnection()
     cur = mybd.cursor()
     try:
-       cur.execute( f"INSERT INTO {tabl}(Name , papok , drive )  VALUES('{name}',{folder},{drive});" )
+       cur.execute( f"UPDATE {tabl} set papok = '{folder}', drive = '{drive}' WHERE Name = '{name}' ")
     except:
-       cur.execute( f"CREATE TABLE {tabl} (id int PRIMARY KEY AUTO_INCREMENT, Name TEXT , papok int, drive int);" )
-       cur.execute( f"INSERT INTO {tabl}(Name , papok , drive) VALUES('{name}',{folder},{drive});" )
+        pass
     mybd.commit()
     mybd.close()
     server.stop()
