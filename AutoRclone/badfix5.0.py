@@ -201,7 +201,7 @@ if __name__ == '__main__':
        except:
           print('Не знаю такого имени сервера или нет фала ktokakoi.py')
    else:
-      input('Имя сервера не найдено ......... Запуск не возможен')
+      input('Имя сервера не обнаружено ......... Запуск не возможен')
    print(nomera_s)
    #new_badfix_tabl(len(len_spisok))
 
