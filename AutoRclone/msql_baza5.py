@@ -3,7 +3,7 @@ import pymysql
 from sshtunnel import SSHTunnelForwarder
 
 tabl=None
-for qqq in  os.listdir():
+for qqq in  os.listdir('/root'):
     if qqq.startswith('pp'):
         tabl='badfix_tabl_pp'
         print(tabl)
