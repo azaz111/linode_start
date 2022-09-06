@@ -187,7 +187,7 @@ def cikl(iii,schet_err=0):
 
 if __name__ == '__main__':
    nomb_serv=None
-   for qqq in  os.listdir():
+   for qqq in  os.listdir('/root'):
        if qqq.startswith('pp'):
            nomb_serv=qqq
            print(nomb_serv)
