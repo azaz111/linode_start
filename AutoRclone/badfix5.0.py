@@ -1,4 +1,5 @@
 from dataclasses import replace
+from logging import root
 import os
 from time import sleep, time
 from BIB_API import  bot , drive_ls , service_avtoriz_v3 , ls_files_dr_or_fold
@@ -205,7 +206,7 @@ def cikl(iii,schet_err=0):
 
 if __name__ == '__main__':
    nomb_serv=None
-   for qqq in  os.listdir():
+   for qqq in  os.listdir('/root'):
        if qqq.startswith('pp'):
            nomb_serv=qqq
            print(nomb_serv)
@@ -231,5 +232,3 @@ if __name__ == '__main__':
       #cikl(iii)
       thread = threading.Thread(target=cikl, args=(iii,))
       thread.start()
-
-
