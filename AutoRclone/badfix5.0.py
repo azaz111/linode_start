@@ -15,6 +15,7 @@ import concurrent.futures
 import threading
 import pymysql
 from sshtunnel import SSHTunnelForwarder
+import configparser
 
 start_time = datetime.now()
 limit_time = datetime.now()
@@ -29,6 +30,22 @@ server = SSHTunnelForwarder(
     ssh_password='XUVLWMX5TEGDCHDU',
     remote_bind_address=('127.0.0.1', 3306)
 )
+
+
+
+
+def rconf_chek(iii , id ):
+    path=f'/root/.config/rclone/rclone.conf'
+    config = configparser.ConfigParser()
+    config.read(path)
+    team_drive = config.get('osnova'+str(iii),'team_drive')
+    if team_drive == id :
+      return True
+    else:
+      print('Меняем значение диска')
+      config.set('osnova'+str(iii),'team_drive', id)
+      with open(path, "w") as config_file:
+        config.write(config_file)
 
 def download_new_json(nomber_start):
     token_j2=None
@@ -122,6 +139,7 @@ def add_json_to_drive(id_drives,nomber_start):
 def cikl(iii,schet_err=0):
    try:
       id_drive=chek_drive(iii)
+      rconf_chek(iii,id_drive)
       """ Монтируем + Проверка """
       schet=0
       name_osnova='osnova'+str(iii)
@@ -187,26 +205,31 @@ def cikl(iii,schet_err=0):
 
 if __name__ == '__main__':
    nomb_serv=None
-   for qqq in  os.listdir('/root'):
+   for qqq in  os.listdir():
        if qqq.startswith('pp'):
            nomb_serv=qqq
            print(nomb_serv)
        elif qqq.startswith('og'):
            nomb_serv=qqq
-           print(nomb_serv)
-   #print(ktokakoi.data)
+           print(nomb_serv)       
    if nomb_serv:
        try:
           nomera_s=[x[1] for x in ktokakoi.data if x[0]==nomb_serv][0]
        except:
           print('Не знаю такого имени сервера или нет фала ktokakoi.py')
    else:
-      input('Имя сервера не обнаружено ......... Запуск не возможен')
+      input('Имя сервера не Обнаружено  ......... Запуск не возможен')
    print(nomera_s)
    #new_badfix_tabl(len(len_spisok))
-
+   konf = os.path.exists('/root/.config/rclone/rclone.conf')
+   if konf:
+      pass
+   else:
+      input('rclone.conf не Обнаружен  ......... Запуск не возможен')
    for iii in nomera_s:
       sleep(0.7)
       #cikl(iii)
       thread = threading.Thread(target=cikl, args=(iii,))
       thread.start()
+
+
