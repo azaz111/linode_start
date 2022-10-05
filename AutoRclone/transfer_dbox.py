@@ -19,11 +19,9 @@ server = SSHTunnelForwarder(
     ('149.248.8.216', 22),
     ssh_username='root',
     ssh_password='XUVLWMX5TEGDCHDU',
-    remote_bind_address=('127.0.0.1', 3306)
-)
+    remote_bind_address=('127.0.0.1', 3306))
 
 def getConnection(): 
-    # Вы можете изменить параметры соединения.
     connection = pymysql.connect(host='127.0.0.1', port=server.local_bind_port, user='chai_cred',
                       password='Q12w3e4003r!', database='credentals',
                       cursorclass=pymysql.cursors.DictCursor)
@@ -45,7 +43,7 @@ def download_token():
    server.start()
    mybd = getConnection()
    cur = mybd.cursor()
-   cur.execute( f"SELECT * FROM {tabl} WHERE status = 'True'" ) # запросим все данные  
+   cur.execute( f"SELECT * FROM {tabl} WHERE len=(SELECT min(len) FROM {tabl}) and status = 'True' " ) # запросим все данные  
    rows = cur.fetchall()
    print(len(rows))
    if len(rows) == 0:
@@ -64,11 +62,22 @@ def download_token():
    server.stop()
    return [token,id]
 
-def vernem_true(id_v):
+def vernem_true(id_v , conf_d):
+
+   try:
+      com=f'rclone ls {conf_d}:'
+      comls= com.split(' ')
+      process = subprocess.Popen(comls, stdout=subprocess.PIPE)
+      process.wait()
+      stat_len=len(str(process.communicate()[0]).split('\\n'))
+      print('[ ! ] Plot account ' , str(stat_len))
+   except:
+      stat_len='error'
+
    server.start()
    mybd = getConnection()
    cur = mybd.cursor()
-   cur.execute( f"UPDATE {tabl} set status = 'True' WHERE id = {id_v}") # Обнавление данных
+   cur.execute( f"UPDATE {tabl} set status = 'True' , len = '{stat_len}'  WHERE id = {id_v}") # Обнавление данных
    mybd.commit()
    mybd.close()
    server.stop()
@@ -79,7 +88,7 @@ def new_config():
        f.write(f'\n[dbox_{str(n)}]\ntype = dropbox\ntoken = {tokens[0]}')
    return tokens[1]
 
-def stat_progect(com : str , id_osvobodi):
+def stat_progect(com : str , id_osvobodi , conf_d):
     comls= com.split(' ')
     #print(comls)
     process = subprocess.Popen(comls, stdout=subprocess.PIPE, universal_newlines=True)
@@ -92,7 +101,7 @@ def stat_progect(com : str , id_osvobodi):
         if not line:
           break
     print('['+str(process.pid)+'] - PEREDAN vernem True id' + str(id_osvobodi))
-    vernem_true(id_osvobodi)
+    vernem_true(id_osvobodi, conf_d)
 
 def transfer(dirs):
    global n
@@ -108,7 +117,7 @@ def transfer(dirs):
               print('запускаю транс  ' + qqq )
               id_osvobodi=new_config()
               com=f'rclone move {dirs}/{qqq} dbox_{str(n)}: --drive-stop-on-upload-limit --transfers 1 -P -v --log-file /root/rclone1.log'
-              thread = threading.Thread(target=stat_progect, args=(com,id_osvobodi,))
+              thread = threading.Thread(target=stat_progect, args=(com,id_osvobodi,f'dbox_{str(n)}',))
               thread.start()
               unique.append(qqq)
               if len(unique) > 20:
@@ -140,5 +149,4 @@ if __name__ == '__main__':
       os.remove('/root/.config/rclone/rclone.conf')
    except:
       pass
-
    transfer(dirs)
