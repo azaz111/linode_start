@@ -25,30 +25,13 @@ except:
 
 start_time = datetime.now()
 limit_time = datetime.now()
+osn_serv=int(argv[1])
+osn_lim=int(argv[2])
 path=conf_bf.server_name
 tabl_json=conf_bf.tabl_json
 sch_pereezdov=0
 sch_smen_time=0
 id_cred=''
-
-def drive_ls(service):  # Cписок всех дисков
-    file_spis=[]
-    page_token = None
-    while True:
-        lsvse=service.teamdrives().list(pageSize=100,
-                                        pageToken=page_token).execute() 
-
-        #print(lsvse)
-        for file in lsvse.get('teamDrives'):
-            # Изменение процесса
-            file_spis.append(file)
-            # print(file.get('name'), file.get('id'))
-        page_token = lsvse.get('nextPageToken', None)
-        if page_token is None:
-            break 
-    return file_spis  
-
-    
 def service_avtoriz_v3(token='token.json'):# АВТОРИЗАЦИЯ  Drive API v3  
     SCOPES = [
     'https://www.googleapis.com/auth/cloud-platform',
@@ -66,20 +49,22 @@ def chek_drive(poisk):# Проверка диска на удаление
     with open('Spisok_drive.txt', 'rb') as t:
       id_disk_prov=t.readlines()[poisk-1][:-1].decode('utf-8')
     print('Чекаем диск '+ id_disk_prov)
-    drive_lsp = drive_ls(service)
+    new_grives = service.teamdrives().list(pageSize=100).execute() #
+    drive_lsp = new_grives.get('teamDrives')
+    #print(drive_lsp)
     for qqq in drive_lsp :
       #print(qqq['id'])
       if qqq['id'] == str(id_disk_prov):
          return True
     return False
 
-def getConnection(): 
+#def getConnection(): 
     connection = pymysql.connect(host='127.0.0.1', port=server.local_bind_port, user='chai_cred',
                       password='Q12w3e4003r!', database='credentals',
                       cursorclass=pymysql.cursors.DictCursor)
     return connection
 
-def download_new_json(nomber_start):
+#def download_new_json(nomber_start):
     token_j2=None
     global sch_pereezdov
     global sch_smen_time
@@ -141,12 +126,12 @@ def countdown(text='',num_of_secs=10):
        time.sleep(1)
        num_of_secs -= 1  
 
-server = SSHTunnelForwarder(
-    ('149.248.8.216', 22),
-    ssh_username='root',
-    ssh_password='XUVLWMX5TEGDCHDU',
-    remote_bind_address=('127.0.0.1', 3306)
-)
+#server = SSHTunnelForwarder(
+#    ('149.248.8.216', 22),
+#    ssh_username='root',
+#    ssh_password='XUVLWMX5TEGDCHDU',
+#    remote_bind_address=('127.0.0.1', 3306)
+#)
 
 def pap_mount(name_osnova,nomber_osnova):
    try:
@@ -157,7 +142,7 @@ def pap_mount(name_osnova,nomber_osnova):
       sum_plot=0
    return sum_plot
 
-def add_json_to_drive(id_drives,nomber_start):
+#def add_json_to_drive(id_drives,nomber_start):
    """ Привязываем джисоны к дискам """
    #print ('Привязываем джисоны к дискам' ,id_drives[0])
    drive=service_avtoriz_v3()
@@ -175,7 +160,9 @@ def add_json_to_drive(id_drives,nomber_start):
          sleep(5)
          print('Не ПРИВЯЗАНЫ')
 
-def cikl(list_nomber):
+def cikl():
+   list_nomber=list(range(osn_serv+1,osn_lim+1))
+   print(list_nomber)
    """ Монтируем + Проверка """
    schet=0
    x=osn_serv
@@ -194,7 +181,7 @@ def cikl(list_nomber):
          else:
             print("\033[32m{}\033[0m".format('   ...диск на месте '))
             # качаем джисоны 
-            if download_new_json(iii) == False:
+            if chek_drive(iii) == False:
                break
              
             # берем айди диска 
@@ -202,11 +189,8 @@ def cikl(list_nomber):
             
             with open('Spisok_drive.txt', 'rb') as t:
                 id_disk_prov.append(t.readlines()[iii-1][:-1].decode('utf-8'))
-            # Отчистить привязки
-            for id_disk_provs in id_disk_prov:
-                os.system(f'python3 mas_dell.py -d {id_disk_provs}')
-            # Привязать новые
-            add_json_to_drive(id_disk_prov,iii)
+            
+           
             
 
             name_osnova='osnova'+str(iii)
@@ -217,7 +201,7 @@ def cikl(list_nomber):
                sleep(4)
                os.system (f'fusermount -uz /{name_osnova}/{iii}-1.d')
                sleep(2)
-               os.system (f'screen -dmS "{name_osnova}" rclone mount {name_osnova}:{iii}-1.d /{name_osnova}/{iii}-1.d  --vfs-read-chunk-size 1M --vfs-read-chunk-size-limit 0 --vfs-cache-mode full --max-read-ahead 0 --buffer-size off --no-checksum --no-modtime --read-only  --buffer-size off --dir-cache-time 960h --poll-interval 24h  --daemon')
+               os.system (f'screen -dmS "{name_osnova}" rclone mount {name_osnova}:{iii}-1.d /{name_osnova}/{iii}-1.d --vfs-read-chunk-size 1M --vfs-read-chunk-size-limit 0 --vfs-cache-mode full --max-read-ahead 0 --buffer-size off --no-checksum --no-modtime --read-only  --buffer-size off --dir-cache-time 960h --poll-interval 24h --allow-non-empty  --daemon')
                print( 'Пытаюсь повторно размонтировать')
                print(pap_mount(name_osnova,iii))
                if pap_mount(name_osnova,iii) >= 1 :
@@ -234,28 +218,12 @@ def cikl(list_nomber):
 
 
 if __name__ == '__main__':
-   osn_serv=int(argv[1])
-   osn_lim=int(argv[2])
-   list_nomber=list(range(osn_serv+1,osn_lim+1))
-   for l in  range(3,20):
-      try:
-         list_nomber.remove(int(argv[l]))
-      except:
-         pass
-   print(list_nomber)
    while True:
-      no_spisok=''
-      json_fails=os.listdir()
-      for rrr in json_fails :
-         if rrr == 'Spisok_drive.txt':
-            no_spisok=True
-      if no_spisok:
-         print('Cписок на месте продолжаю ')
-         print('Приступаю к работе')
-         cikl(list_nomber)
-         countdown('Перерыв - ',120)
-      else:
-         countdown('В ожидании списка драйв - ',5)
+      print('Приступаю к работе')
+      cikl()
+      countdown('Перерыв - ',120)
+
+
 
 
    
