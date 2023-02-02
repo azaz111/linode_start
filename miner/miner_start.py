@@ -10,7 +10,7 @@ shutil.copyfile('/root/AutoRclone/token.json','token.json')
 #except:
 #    input('нехватает фалов ......')
 from BIB_API import drive_ls , service_avtoriz , drivr_s_folder_all
-
+from sys import  argv
 
 kakoi=int(input('Какой майнер ставим Господин !!! \n PP - 1 \n OG - 2 \n ~: '))
 
@@ -60,7 +60,7 @@ def vibor_m():
         return(list_miner)
 
 for q in vibor_m():
-   q_name=ipp()+'_Miner_'+'_'.join(q)
+   q_name=ipp()+argv[1]+'_Miner_'+'_'.join(q)
    os.mkdir(q_name)
    shutil.copyfile('miner'+type_miner,q_name+'/miner')
    os.system('chmod 777 '+q_name+'/miner')
@@ -72,7 +72,7 @@ for q in vibor_m():
    data['log']['path']=q_name+'/log/'
    data['minerName']=q_name
    data['apiKey']=api
-   data['path']=['/osnova'+x+'/'+x+'-1.d' for x in q]
+   data['path']=['/osnova'+argv[1]+'/'+x for x in q]
 
    print(data['path'])
    with open(q_name+'/config.yaml', 'w') as fw:
